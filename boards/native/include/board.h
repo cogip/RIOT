@@ -34,6 +34,10 @@ extern "C" {
 #include "mtd_native.h"
 #endif
 
+#ifdef MODULE_NATIVE_DRIVERS
+#include "motor_driver.h"
+#endif
+
 /**
  * @name    LED handlers
  * @{
@@ -129,6 +133,41 @@ extern mtd_dev_t *mtd0;
 #ifdef __cplusplus
 }
 #endif
+
+/**
+ * @brief Describe DC motor with PWM channel and GPIOs
+ */
+static const motor_driver_config_t motor_driver_config[] = {
+    {
+        .mode            = MOTOR_DRIVER_1_DIR_BRAKE,
+        .pwm_dev         = 0,
+        .pwm_frequency   = 20000U,
+        .pwm_resolution  = 1000U,
+        .nb_motors       = 2,
+        .motors          = {
+            {
+                .pwm_channel            = 0,
+                .gpio_enable            = GPIO_PIN(0, 0),
+                .gpio_dir0              = GPIO_PIN(0, 0),
+                .gpio_dir1              = GPIO_PIN(0, 0),
+                .gpio_dir_reverse       = 0,
+                .gpio_enable_invert     = 0,
+                .gpio_brake_invert      = 0,
+            },
+            {
+                .pwm_channel            = 1,
+                .gpio_enable            = GPIO_PIN(0, 0),
+                .gpio_dir0              = GPIO_PIN(0, 0),
+                .gpio_dir1              = GPIO_PIN(0, 0),
+                .gpio_dir_reverse       = 1,
+                .gpio_enable_invert     = 0,
+                .gpio_brake_invert      = 0,
+            },
+        },
+    },
+};
+
+#define MOTOR_DRIVER_NUMOF           (sizeof(motor_driver_config) / sizeof(motor_driver_config[0]))
 
 /** @} */
 #endif /* BOARD_H */
