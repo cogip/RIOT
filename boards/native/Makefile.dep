@@ -19,3 +19,7 @@ ifneq (,$(filter socket_zep,$(USEMODULE)))
   USEMODULE += checksum
   USEMODULE += random
 endif
+
+ifneq (,$(filter motor_driver,$(USEMODULE)))
+  USEMODULE := $(filter-out motor_driver, $(USEMODULE))
+endif
