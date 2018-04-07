@@ -36,11 +36,11 @@ extern "C" {
  */
 
 #ifndef COGIP2018_CPU
-#error "Please add 'CFLAGS=-DCOGIP2018_CPU=F446 (or F401, F411) to select build variant"
-#error "ex.   CFLAGS=-DCOGIP2018_CPU=F446 BOARD=cogip2018-f4xx make"
+#error "Please add 'CFLAGS=-DCOGIP2018_CPU=446 (or 401, 411) to select build variant"
+#error "ex.   CFLAGS=-DCOGIP2018_CPU=446 BOARD=cogip2018-f4xx make"
 #endif
 
-#if COGIP2018_CPU == F446 /* ************************************************ */
+#if COGIP2018_CPU == 446 /* ************************************************ */
 /* give the target core clock (HCLK) frequency [in Hz],
  * maximum: 180MHz */
 #define CLOCK_CORECLOCK     (180000000U)
@@ -74,8 +74,7 @@ extern "C" {
 /* Use alternative source for 48MHz clock */
 #define CLOCK_USE_ALT_48MHZ  (1)
 
-#elif COGIP2018_CPU == F401 /* ********************************************** */
-
+#elif COGIP2018_CPU == 401 /* ********************************************** */
 /* give the target core clock (HCLK) frequency [in Hz],
  * maximum: 84MHz */
 #define CLOCK_CORECLOCK     (84000000U)
@@ -99,7 +98,7 @@ extern "C" {
 #define CLOCK_PLL_P          (4)
 #define CLOCK_PLL_Q          (7)
 
-#elif COGIP2018_CPU == F411
+#elif COGIP2018_CPU == 411
 
 /* give the target core clock (HCLK) frequency [in Hz],
  * maximum: 100MHz */
@@ -123,6 +122,10 @@ extern "C" {
 #define CLOCK_PLL_N          (192)
 #define CLOCK_PLL_P          (4)
 #define CLOCK_PLL_Q          (8)
+
+#else /* ********************************************** */
+#error "Bad COGIP2018_CPU flag, should be 'CFLAGS=-DCOGIP2018_CPU=446' (or 401, 411) to select build variant"
+#error "ex.   CFLAGS=-DCOGIP2018_CPU=446 BOARD=cogip2018-f4xx make"
 
 #endif /* ******************************************************************* */
 /** @} */
