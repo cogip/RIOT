@@ -33,6 +33,21 @@ extern "C" {
 #endif
 
 /**
+ *  * @brief   Available ports on the STM32F4 family
+ *   */
+enum {
+    PORT_A = 0,             /**< port A */
+    PORT_B = 1,             /**< port B */
+    PORT_C = 2,             /**< port C */
+    PORT_D = 3,             /**< port D */
+    PORT_E = 4,             /**< port E */
+    PORT_F = 5,             /**< port F */
+    PORT_G = 6,             /**< port G */
+    PORT_H = 7,             /**< port H */
+    PORT_I = 8              /**< port I */
+};
+
+/**
  * @brief   Prevent shared timer functions from being used
  */
 #define PERIPH_TIMER_PROVIDES_SET
