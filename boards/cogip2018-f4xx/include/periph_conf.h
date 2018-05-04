@@ -201,7 +201,7 @@ static const pwm_conf_t pwm_config[] = {
         .dev      = TIM2,
         .rcc_mask = RCC_APB1ENR_TIM2EN,
         .chan     = { { .pin = GPIO_PIN(PORT_A, 5), .cc_chan = 0},
-                      { .pin = GPIO_PIN(PORT_B, 3), .cc_chan = 1},
+                      { .pin = GPIO_PIN(PORT_B, 9), .cc_chan = 1},
                       { .pin = GPIO_UNDEF,          .cc_chan = 2},
                       { .pin = GPIO_UNDEF,          .cc_chan = 3} },
         .af       = GPIO_AF1,
