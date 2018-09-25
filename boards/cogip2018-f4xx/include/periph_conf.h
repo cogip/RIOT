@@ -259,28 +259,24 @@ static const qdec_conf_t qdec_config[] = {
  * @name I2C configuration
  * @{
  */
-#define I2C_NUMOF           (1U)
-#define I2C_0_EN            1
-#define I2C_IRQ_PRIO        1
-#define I2C_APBCLK          (CLOCK_APB1)
+static const i2c_conf_t i2c_config[] = {
+    {
+        .dev            = I2C3,
+        .speed          = I2C_SPEED_NORMAL,
+        .scl_pin        = GPIO_PIN(PORT_A, 8),
+        .sda_pin        = GPIO_PIN(PORT_C, 9),
+        .scl_af         = GPIO_AF4,
+        .sda_af         = GPIO_AF4,
+        .bus            = APB1,
+        .rcc_mask       = RCC_APB1ENR_I2C3EN,
+        .clk            = CLOCK_APB1,
+        .irqn           = I2C1_EV_IRQn
+    }
+};
 
-/* I2C 3 device configuration */
-#define I2C_0_DEV           I2C3
-#define I2C_0_CLKEN()       (periph_clk_en(APB1, RCC_APB1ENR_I2C3EN))
-#define I2C_0_CLKDIS()      (periph_clk_dis(APB1, RCC_APB1ENR_I2C3EN))
-#define I2C_0_EVT_IRQ       I2C3_EV_IRQn
-#define I2C_0_EVT_ISR       isr_i2c3_ev
-#define I2C_0_ERR_IRQ       I2C3_ER_IRQn
-#define I2C_0_ERR_ISR       isr_i2c3_er
-/* I2C 3 pin configuration */
-#define I2C_0_SCL_PORT      GPIOA
-#define I2C_0_SCL_PIN       8
-#define I2C_0_SCL_AF        4
-#define I2C_0_SCL_CLKEN()   (periph_clk_en(AHB1, RCC_AHB1ENR_GPIOAEN))
-#define I2C_0_SDA_PORT      GPIOC
-#define I2C_0_SDA_PIN       9
-#define I2C_0_SDA_AF        4
-#define I2C_0_SDA_CLKEN()   (periph_clk_en(AHB1, RCC_AHB1ENR_GPIOCEN))
+#define I2C_0_ISR           isr_i2c1_ev
+
+#define I2C_NUMOF           (sizeof(i2c_config) / sizeof(i2c_config[0]))
 /** @} */
 
 /**
