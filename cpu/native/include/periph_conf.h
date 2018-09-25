@@ -79,6 +79,8 @@
 #define PWM_NUMOF (8U)
 #endif
 
+#define I2C_NUMOF (1U)
+
 /**
  * @brief QDEC configuration
  */
