@@ -25,11 +25,10 @@
 #define SIMU_ENC_BUFSIZE    3
 extern int32_t qdecs_value[QDEC_NUMOF];
 
-void native_motor_driver_qdec_simulation( \
-    const motor_driver_t motor_driver, uint8_t motor_id, \
+void native_motor_driver_qdec_simulation(
+    const motor_driver_t motor_driver, uint8_t motor_id,
     motor_direction_t direction, uint16_t pwm_duty_cycle)
 {
-    (void) motor_driver;
     static int16_t simu_motor_encoder[QDEC_NUMOF][SIMU_ENC_BUFSIZE] = {0,};
 
     uint32_t i = 0, id = 0;
@@ -38,7 +37,7 @@ void native_motor_driver_qdec_simulation( \
     int32_t pwm_value = direction ? -pwm_duty_cycle : pwm_duty_cycle;
 
     for (i = 0; i < motor_driver; i++) {
-        const motor_driver_config_t motor_driver_conf = \
+        const motor_driver_config_t motor_driver_conf =
             motor_driver_config[motor_driver];
         id += motor_driver_conf.nb_motors;
     }
@@ -46,8 +45,7 @@ void native_motor_driver_qdec_simulation( \
 
     if (id < QDEC_NUMOF) {
 
-        for (i = 0; i < SIMU_ENC_BUFSIZE - 1; i++)
-        {
+        for (i = 0; i < SIMU_ENC_BUFSIZE - 1; i++) {
             s += simu_motor_encoder[id][i];
             simu_motor_encoder[id][i] = simu_motor_encoder[id][i+1];
         }

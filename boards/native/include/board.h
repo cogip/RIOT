@@ -131,6 +131,42 @@ void native_motor_driver_qdec_simulation( \
     const motor_driver_t motor_driver, uint8_t motor_id, \
     motor_direction_t direction, uint16_t pwm_duty_cycle);
 
+/**
+ * @brief Describe DC motor with PWM channel and GPIOs
+ */
+static const motor_driver_config_t motor_driver_config[] = {
+    {
+        .mode            = MOTOR_DRIVER_1_DIR_BRAKE,
+        .pwm_dev         = 0,
+        .pwm_frequency   = 20000U,
+        .pwm_resolution  = 1000U,
+        .nb_motors       = 2,
+        .motors          = {
+            {
+                .pwm_channel            = 0,
+                .gpio_enable            = GPIO_PIN(0, 0),
+                .gpio_dir0              = GPIO_PIN(0, 0),
+                .gpio_dir1_or_brake     = GPIO_PIN(0, 0),
+                .gpio_dir_reverse       = 0,
+                .gpio_enable_invert     = 0,
+                .gpio_brake_invert      = 0,
+            },
+            {
+                .pwm_channel            = 1,
+                .gpio_enable            = GPIO_PIN(0, 0),
+                .gpio_dir0              = GPIO_PIN(0, 0),
+                .gpio_dir1_or_brake     = GPIO_PIN(0, 0),
+                .gpio_dir_reverse       = 1,
+                .gpio_enable_invert     = 0,
+                .gpio_brake_invert      = 0,
+            },
+        },
+        .cb = native_motor_driver_qdec_simulation,
+    },
+};
+
+#define MOTOR_DRIVER_NUMOF           (sizeof(motor_driver_config) / sizeof(motor_driver_config[0]))
+
 #ifdef __cplusplus
 }
 #endif
