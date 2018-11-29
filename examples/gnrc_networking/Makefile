@@ -2,7 +2,8 @@
 APPLICATION = gnrc_networking
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= native
+#BOARD ?= native
+BOARD ?= nucleo-f446re
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../..
@@ -37,6 +38,7 @@ USEMODULE += ps
 USEMODULE += netstats_l2
 USEMODULE += netstats_ipv6
 USEMODULE += netstats_rpl
+USEMODULE += cc110x
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

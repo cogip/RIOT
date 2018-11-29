@@ -60,6 +60,36 @@ extern "C" {
 #endif
 /** @} */
 
+#ifndef CC110X_PARAM_SPI
+#define CC110X_PARAM_SPI            SPI_DEV(0)
+#endif
+
+#ifndef CC110X_PARAM_CS
+#define CC110X_PARAM_CS             GPIO_PIN(PORT_A, 4)
+#endif
+
+#ifndef CC110X_PARAM_GDO0
+//#define CC110X_PARAM_GDO0           GPIO_PIN(0, 27)
+#endif
+
+#ifndef CC110X_PARAM_GDO1
+//#define CC110X_PARAM_GDO1           GPIO_PIN(1, 23)
+#endif
+
+#ifndef CC110X_PARAM_GDO2
+#define CC110X_PARAM_GDO2           GPIO_PIN(PORT_B, 0)
+#endif
+
+#ifndef CC110X_PARAMS
+#define CC110X_PARAMS               { \
+                                        .spi  = CC110X_PARAM_SPI,  \
+                                        .cs   = CC110X_PARAM_CS,   \
+                                        .gdo0 = CC110X_PARAM_GDO0, \
+                                        .gdo1 = CC110X_PARAM_GDO1, \
+                                        .gdo2 = CC110X_PARAM_GDO2, \
+                                    }
+#endif
+
 #ifdef __cplusplus
 }
 #endif

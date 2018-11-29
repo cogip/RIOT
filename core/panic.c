@@ -44,7 +44,7 @@ static int crashed = 0;
 void __attribute__((weak)) panic_arch(void) {}
 
 #include "motor_driver.h"
-#include "platform.h"
+//#include "platform.h"
 
 /* WARNING: this function NEVER returns! */
 NORETURN void core_panic(core_panic_t crash_code, const char *message)
@@ -54,8 +54,8 @@ NORETURN void core_panic(core_panic_t crash_code, const char *message)
 #endif
 
 	/* MOTOR HALT !! */
-	motor_set(0, HBRIDGE_MOTOR_LEFT, 0, 0);
-	motor_set(0, HBRIDGE_MOTOR_RIGHT, 0, 0);
+	//motor_set(0, HBRIDGE_MOTOR_LEFT, 0, 0);
+	//motor_set(0, HBRIDGE_MOTOR_RIGHT, 0, 0);
 
     if (crashed == 0) {
         /* print panic message to console (if possible) */
