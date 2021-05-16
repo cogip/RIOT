@@ -1,0 +1,37 @@
+name: Cogip-Synchro
+
+on:
+  schedule:
+    # Every day at 3 AM UTC
+    - cron: '14 3 * * *'
+
+jobs:
+  update-master:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Clone cogip RIOT
+      uses: actions/checkout@v2
+      with:
+        path: 'RIOT'
+        fetch-depth: '0'
+    - name: Add RIOT-OS/RIOT remote and fetch it
+      run: |
+        cd RIOT
+        git remote add riot https://github.com/RIOT-OS/RIOT.git
+        git fetch riot
+    - name: Update Cogip master branch from RIOT-OS
+      run: |
+        cd RIOT
+        git config --global user.email "ci@cogip.fr"
+        git config --global user.name "Cogip CI"
+        git fetch origin
+        git checkout master
+        git reset --hard riot/master
+        git push origin master:riot-master
+        git checkout cogip-synchro
+        git pull
+        git rebase origin/riot-master
+        git show --shortstat
+        git push origin cogip-synchro --force
+        git push origin cogip-synchro:master --force
