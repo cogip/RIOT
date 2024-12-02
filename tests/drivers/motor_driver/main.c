@@ -24,7 +24,7 @@
 #include "init_dev.h"
 #include "log.h"
 #include "motor_driver.h"
-#include "motor_driver_params.h"
+#include "motor_params.h"
 #include "test_utils/expect.h"
 #include "time_units.h"
 #include "ztimer.h"
@@ -41,7 +41,7 @@ void motor_driver_callback_example(
 }
 
 /* Set interval to 3 seconds */
-#define INTERVAL (3 * MS_PER_SEC)
+#define INTERVAL (0.3 * MS_PER_SEC)
 
 #define MOTOR_0_ID  0
 #define MOTOR_1_ID  1
@@ -65,10 +65,6 @@ void motors_control(int32_t duty_cycle)
         printf("Cannot set PWM duty cycle for motor %" PRIu8 "\n", \
                MOTOR_0_ID);
     }
-    if (motor_set(&motor_driver, MOTOR_1_ID, duty_cycle)) {
-        printf("Cannot set PWM duty cycle for motor %" PRIu8 "\n", \
-               MOTOR_1_ID);
-    }
 }
 
 void motors_brake(void)
@@ -78,9 +74,6 @@ void motors_brake(void)
     if (motor_brake(&motor_driver, MOTOR_0_ID)) {
         printf("Cannot brake motor %" PRIu32 "\n", (uint32_t)MOTOR_0_ID);
     }
-    if (motor_brake(&motor_driver, MOTOR_1_ID)) {
-        printf("Cannot brake motor %" PRIu32 "\n", (uint32_t)MOTOR_1_ID);
-    }
 }
 
 void motion_control(void)
@@ -89,38 +82,18 @@ void motion_control(void)
     int ret = 0;
     int32_t pwm_res = motor_driver_params->pwm_resolution;
 
-    ret = motor_driver_init(&motor_driver, &motor_driver_params[0]);
+    ret = motor_driver_init(&motor_driver, motor_driver_params);
     if (ret) {
         LOG_ERROR("motor_driver_init failed with error code %d\n", ret);
     }
     expect(ret == 0);
+    pwm_set(motor_driver_params->pwm_dev, 1, motor_driver_params->pwm_resolution/2);
 
     while (1) {
-        /* BRAKE - duty cycle 100% */
-        motors_brake();
-        ztimer_sleep(ZTIMER_MSEC, INTERVAL);
+            ztimer_sleep(ZTIMER_MSEC, INTERVAL);
 
-        ///* CW - duty cycle 50% */
-        motors_control(dir * pwm_res / 2);
-        ztimer_sleep(ZTIMER_MSEC, INTERVAL);
-
-        /* Disable motor during INTERVAL µs (motor driver must have enable
-         //feature */
-        puts("\nDisable motors");
-        motor_disable(&motor_driver, MOTOR_0_ID);
-        motor_disable(&motor_driver, MOTOR_1_ID);
-        ztimer_sleep(ZTIMER_MSEC, INTERVAL);
-        puts("\nEnable motors");
-        motor_enable(&motor_driver, MOTOR_0_ID);
-        motor_enable(&motor_driver, MOTOR_1_ID);
-        ztimer_sleep(ZTIMER_MSEC, INTERVAL);
-
-        /* CW - duty cycle 100% */
-        motors_control(dir * pwm_res);
-        ztimer_sleep(ZTIMER_MSEC, INTERVAL);
-
-        /* Reverse direction */
-        dir *= -1;
+            motor_enable(&motor_driver, MOTOR_0_ID);
+            motors_control(dir * pwm_res);
     }
 }
 
