@@ -1,0 +1,91 @@
+# Copyright (C) 2025 Mathis LECRIVAIN <lecrivain.mathis@gmail.com>
+#
+# This file is subject to the terms and conditions of the GNU Lesser
+# General Public License v2.1. See the file LICENSE in the top level
+# directory for more details.
+#
+
+menuconfig MODULE_MAX1161X
+    bool
+    prompt "MAX1161X Analog-to-Digital converter" if !(SAUL_DEFAULT && HAVE_MAX1161X)
+    default SAUL_DEFAULT && HAVE_MAX1161X
+    depends on HAS_PERIPH_GPIO
+    depends on HAS_PERIPH_GPIO_IRQ
+    depends on HAS_PERIPH_I2C
+    depends on TEST_KCONFIG
+    select MODULE_PERIPH_GPIO
+    select MODULE_PERIPH_GPIO_IRQ
+    select MODULE_PERIPH_I2C
+
+choice MAX1161X_VARIANT
+    bool "Variants"
+    depends on MODULE_MAX1161X
+    default MODULE_MAX11612 if HAVE_MAX11612
+    default MODULE_MAX11613 if HAVE_MAX11613
+    default MODULE_MAX11614 if HAVE_MAX11614
+    default MODULE_MAX11615 if HAVE_MAX11615
+    default MODULE_MAX11616 if HAVE_MAX11616
+    default MODULE_MAX11617 if HAVE_MAX11617
+    help
+        This driver works with max11612, max11613, max11614, max11615, max11616 and max11617 models. Select one.
+
+config MODULE_MAX11612
+    bool "MAX11612"
+
+config MODULE_MAX11613
+    bool "MAX11613"
+
+config MODULE_MAX11614
+    bool "MAX11614"
+
+config MODULE_MAX11615
+    bool "MAX11615"
+
+config MODULE_MAX11616
+    bool "MAX11616"
+
+config MODULE_MAX11617
+    bool "MAX11617"
+
+endchoice
+
+config HAVE_MAX1161X
+    bool
+    help
+        Indicates that MAX1161X Analog-to-Digital is present.
+
+config HAVE_MAX11612
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11612 Analog-to-Digital is present.
+
+config HAVE_MAX11613
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11613 Analog-to-Digital is present.
+
+config HAVE_MAX11614
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11614 Analog-to-Digital is present.
+
+config HAVE_MAX11615
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11615 Analog-to-Digital is present.
+
+config HAVE_MAX11616
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11616 Analog-to-Digital is present.
+
+config HAVE_MAX11617
+    bool
+    select HAVE_MAX1161X
+    help
+        Indicates that MAX11617 Analog-to-Digital is present.
