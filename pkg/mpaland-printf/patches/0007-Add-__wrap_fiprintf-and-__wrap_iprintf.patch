@@ -1,0 +1,39 @@
+From 0f19b540d5d47969441260c5844365b6d463f1d1 Mon Sep 17 00:00:00 2001
+From: Gilles DOFFE <g.doffe@gmail.com>
+Date: Sun, 14 Dec 2025 22:27:47 +0100
+Subject: [PATCH] Add __wrap_fiprintf and __wrap_iprintf
+
+Makefile.include wraps fiprintf and iprintf but the wrapper endpoints
+were missing. This causes link errors when newlib functions like
+mallinfo() internally call fiprintf.
+
+Add __wrap_fiprintf and __wrap_iprintf that redirect to the existing
+__wrap_fprintf and __wrap_printf implementations.
+---
+ printf.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/printf.c b/printf.c
+index 0940f84..72419cf 100644
+--- a/printf.c
++++ b/printf.c
+@@ -1063,3 +1063,16 @@ int __wrap_dprintf(int fd, const char *format, ...)
+   return result;
+   
+ }
++
++int __wrap_fiprintf(FILE *stream, const char *format, ...)
++{
++  va_list va;
++  va_start(va, format);
++  int result = __wrap_vfprintf(stream, format, va);
++  va_end(va);
++  return result;
++}
++
++
++__attribute__((alias("printf_")))
++int __wrap_iprintf(const char* format, ...);
+-- 
+2.43.0
+
