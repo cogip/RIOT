@@ -14,9 +14,10 @@
  * @{
  *
  * @file
- * @brief       USB DFU/serial initialization constants for riotboot
+ * @brief       Magic values and reset API for riotboot
  *
  * @author      Dylan Laduranty <dylan.laduranty@mesotic.com>
+ * @author      Mathis Lécrivain <lecrivain.mathis@gmail.com>
  *
  * @}
  */
@@ -28,16 +29,25 @@ extern "C" {
 #endif
 
 /**
- * @name USB RAM information for riotboot
+ * @name RAM magic values for riotboot
  * @{
  */
 #ifndef RIOTBOOT_MAGIC_ADDR
-#define RIOTBOOT_MAGIC_ADDR   (CPU_RAM_BASE + CPU_RAM_SIZE - 4)   /**< default magic address */
+#  define RIOTBOOT_MAGIC_ADDR (CPU_RAM_BASE + CPU_RAM_SIZE - 4) /**< default magic address */
 #endif
 #ifndef RIOTBOOT_MAGIC_NUMBER
-#define RIOTBOOT_MAGIC_NUMBER  RIOTBOOT_MAGIC                     /**< default magic value */
+#  define RIOTBOOT_MAGIC_NUMBER RIOTBOOT_MAGIC /**< default magic value */
 #endif
 /** @} */
+
+/**
+ * @brief   Reboot into the riotboot bootloader
+ *
+ * Writes @ref RIOTBOOT_MAGIC to @ref RIOTBOOT_MAGIC_ADDR and
+ * triggers a reboot. This is transport-agnostic and works for
+ * USB, serial, CAN, or any other transport.
+ */
+void riotboot_reset_to_bootloader(void);
 
 #ifdef __cplusplus
 }

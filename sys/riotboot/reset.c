@@ -7,7 +7,7 @@
  */
 
 /**
- * @ingroup     sys_riotboot_serial
+ * @ingroup     sys_riotboot_magic
  * @{
  *
  * @file
@@ -17,18 +17,21 @@
  * @}
  */
 
-#include <string.h>
-
 #include "irq.h"
 #include "periph/pm.h"
 #include "riotboot/magic.h"
 
-__attribute__((weak))
-void usb_board_reset_in_bootloader(void)
+void riotboot_reset_to_bootloader(void)
 {
     uint32_t *magic = (void *)(uintptr_t)RIOTBOOT_MAGIC_ADDR;
 
     irq_disable();
     *magic = RIOTBOOT_MAGIC;
     pm_reboot();
+}
+
+__attribute__((weak))
+void usb_board_reset_in_bootloader(void)
+{
+    riotboot_reset_to_bootloader();
 }
