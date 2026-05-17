@@ -218,6 +218,14 @@ else ifeq ($(STM32_TYPE), H)
     ROM_LEN = 2048K     # 2 MB Flash
     BACKUP_RAM_ADDR = 0x38800000
     BACKUP_RAM_LEN = 0x4K
+  else ifeq ($(STM32_MODEL), 755)
+    # Dual-core (M7 + M4). Same memory map as H753: 512K AXI SRAM in D1
+    # mapped to the M7 core. ROM_LEN comes from the generic ROMSIZE
+    # parser (I -> 2 MB total; the M4 bank stays unused while RIOT
+    # runs only on M7).
+    RAM_LEN = 512K
+    BACKUP_RAM_ADDR = 0x38800000
+    BACKUP_RAM_LEN = 0x4K
   endif
 else ifeq ($(STM32_TYPE), L)
   ifeq ($(STM32_FAMILY), 0)

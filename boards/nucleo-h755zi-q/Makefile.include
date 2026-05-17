@@ -1,0 +1,8 @@
+# The STM32H755ZI is a dual-core part (Cortex-M7 + Cortex-M4) and the ST
+# CMSIS device header gates its peripheral instance map on either
+# CORE_CM7 or CORE_CM4. RIOT targets the M7 core, so define the macro
+# globally for this board.
+CFLAGS += -DCORE_CM7
+
+# load the common Makefile.include for Nucleo boards
+include $(RIOTBOARD)/common/nucleo144/Makefile.include
