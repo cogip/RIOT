@@ -324,8 +324,14 @@ static int filter_is_set(FDCAN_GlobalTypeDef *can, uint8_t filter_id)
                   fls_ram_address
                   );
 
+            /* A filter slot is occupied only when SFT advertises a valid
+             * filter type AND SFEC routes matches somewhere. The previous
+             * OR-based check treated a zeroed slot (SFT=0 = "Range filter",
+             * SFEC=0 = "Disable filter element") as occupied because SFT=0
+             * differs from the SFT_DISABLED encoding 0b11. Either field
+             * reading "disabled" is enough to mark the element unused. */
             if (((*fls_ram_address & FDCAN_SRAM_FLS_SFT) != FDCAN_SRAM_FLS_SFT_DISABLED)
-                || ((*fls_ram_address & FDCAN_SRAM_FLS_SFEC) != FDCAN_SRAM_FLS_SFEC_DISABLED)) {
+                && ((*fls_ram_address & FDCAN_SRAM_FLS_SFEC) != FDCAN_SRAM_FLS_SFEC_DISABLED)) {
                 DEBUG("%s: FDCAN%u filter %u is enabled by SFT(%lx) and SFEC(%lx)\n",
                   __func__, get_channel_id(can),
                   filter_id,
