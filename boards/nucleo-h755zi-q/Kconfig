@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 COGIP Robotics association
+# SPDX-License-Identifier: LGPL-2.1-only
+
+config BOARD
+    default "nucleo-h755zi-q" if BOARD_NUCLEO_H755ZI_Q
+
+config BOARD_NUCLEO_H755ZI_Q
+    bool
+    default y
+    select BOARD_COMMON_NUCLEO144
+    select CPU_MODEL_STM32H755ZI
+
+source "$(RIOTBOARD)/common/nucleo144/Kconfig"
