@@ -107,15 +107,21 @@ static int _send(int argc, char **argv)
         .data[2] = 0xEF,
     };
 
+    /* Usage: send [<can_id> [b0 b1 ... bN]]
+     * First positional argument, when present, sets the CAN identifier
+     * (decimal or 0x-prefixed hex). Subsequent arguments become the data
+     * bytes. With no arguments the default ID=1 / data=AB CD EF is used,
+     * which preserves backward compatibility with the previous shell. */
     if (argc > 1) {
-        if (argc > 1 + CAN_MAX_DLEN) {
+        if (argc - 2 > CAN_MAX_DLEN) {
             printf("Could not send. Maximum CAN-bytes: %d\n", CAN_MAX_DLEN);
             return -1;
         }
-        for (int i = 1; i < argc; i++) {
-            frame.data[i - 1] = atoi(argv[i]);
+        frame.can_id = strtoul(argv[1], NULL, 0);
+        frame.len = argc - 2;
+        for (int i = 2; i < argc; i++) {
+            frame.data[i - 2] = strtoul(argv[i], NULL, 0);
         }
-        frame.len = argc - 1;
     }
 
     ret = candev->driver->send(candev, &frame);
@@ -237,9 +243,22 @@ static int _power_on(int argc, char **argv)
     return res;
 }
 
+static int _loopback(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+
+    /* Internal loopback: the controller routes TX back into its own RX FIFO
+     * without driving the transceiver. Useful for validating the RX path
+     * end-to-end on a single board (no bus / no peer required). */
+    canopt_state_t state = CANOPT_STATE_LOOPBACK;
+    return candev->driver->set(candev, CANOPT_STATE, &state, sizeof(canopt_state_t));
+}
+
 static const shell_command_t shell_commands[] = {
     { "on", "Turn on the CAN controller", _power_on},
     { "off", "Turn off the CAN controller", _power_off},
+    { "loopback", "Enable internal loopback mode", _loopback},
     { "set_filter", "set CAN filters", _set_can_filter},
     { "set_bit_rate", "set CAN bit rate", _set_bit_rate},
     { "send", "send some data", _send },
