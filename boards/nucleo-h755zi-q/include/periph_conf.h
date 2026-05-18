@@ -194,6 +194,36 @@ static const pwm_conf_t pwm_config[] = {
 #define PWM_NUMOF           ARRAY_SIZE(pwm_config)
 /** @} */
 
+/**
+ * @name    Ethernet configuration
+ *
+ * The Nucleo-144 H7 board ships with the same LAN8742A RMII PHY at MDIO
+ * address 0x00 and the same Ethernet pin map as the Nucleo-F767 / F429
+ * Nucleo-144 boards.
+ * @{
+ */
+#include "mii.h"
+
+static const eth_conf_t eth_config = {
+    .mode = RMII,
+    .speed = MII_BMCR_SPEED_100 | MII_BMCR_FULL_DPLX,
+    .dma = 0,                       /* H7 MAC uses its own dedicated DMA */
+    .dma_chan = 0,
+    .phy_addr = 0x00,
+    .pins = {
+        GPIO_PIN(PORT_G, 13),       /* RMII_TXD1     */
+        GPIO_PIN(PORT_B, 13),       /* (unused on H7 Nucleo, kept for layout) */
+        GPIO_PIN(PORT_G, 11),       /* RMII_TX_EN    */
+        GPIO_PIN(PORT_C, 4),        /* RMII_RXD0     */
+        GPIO_PIN(PORT_C, 5),        /* RMII_RXD1     */
+        GPIO_PIN(PORT_A, 7),        /* RMII_CRS_DV   */
+        GPIO_PIN(PORT_C, 1),        /* RMII_MDC      */
+        GPIO_PIN(PORT_A, 2),        /* RMII_MDIO     */
+        GPIO_PIN(PORT_A, 1),        /* RMII_REF_CLK  */
+    }
+};
+/** @} */
+
 /* CAN: the FDCAN1 pinout (PD0/PD1, AF9) and ISR wiring come from the
  * H7 branch of cpu/stm32/include/can_params.h. The cpu-level can_params
  * file is the auto-init source for candev_conf; redefining it here
