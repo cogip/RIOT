@@ -79,4 +79,18 @@ ifneq (,$(filter periph_can,$(FEATURES_USED)))
   endif
 endif
 
+# Select the Ethernet driver according to the underlying Synopsys MAC IP:
+# - DesignWare MAC v3.x ("ETH" peripheral, MACMIIAR / DMABMR layout) on
+#   F2/F4/F7, served by eth.c. This file is picked up automatically by
+#   the periph_eth submodule because their names match.
+# - DesignWare MAC v5.x (MACMDIOAR / DMAMR / per-channel DMA) on H7,
+#   served by eth_v5.c. Because the file name does not match the module
+#   name, we add it explicitly here and rely on H7 boards never enabling
+#   periph_eth without selecting this driver.
+ifneq (,$(filter periph_eth,$(FEATURES_USED)))
+  ifneq (,$(filter h7,$(CPU_FAM)))
+	SRC += eth_v5.c
+  endif
+endif
+
 include $(RIOTMAKE)/periph.mk
