@@ -64,6 +64,18 @@ ifneq (,$(SRAM4_LEN))
   LINKFLAGS += $(LINKFLAGPREFIX)--defsym=_sram4_length=$(SRAM4_LEN)
 endif
 
+# Map SRAM3 (D2 domain, 32 KiB at 0x30040000) as the non-cacheable
+# region available to stm32h7 peripherals that share DMA memory with
+# the M7 D-cache. The .eth_ram section in cpu/stm32/ldscripts/stm32.ld
+# is placed inside this region. The symbols are always defined on H7
+# even when no driver populates the section: an empty section costs
+# nothing and avoids tying linker plumbing to FEATURES_USED, which is
+# not yet populated at this evaluation point.
+ifeq ($(CPU_FAM),h7)
+  LINKFLAGS += $(LINKFLAGPREFIX)--defsym=_sram_noncache_addr=0x30040000
+  LINKFLAGS += $(LINKFLAGPREFIX)--defsym=_sram_noncache_length=0x8000
+endif
+
 # if the board uses a FMC RAM, all 4 heaps have to be used even if
 # some of them are not available
 ifneq (,$(filter periph_fmc_sdram periph_fmc_nor_sram,$(USEMODULE)))
