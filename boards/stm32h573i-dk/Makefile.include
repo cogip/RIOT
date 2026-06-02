@@ -11,3 +11,8 @@ OPENOCD_DEBUG_ADAPTER ?= stlink-dap
 
 # openocd programmer is supported
 PROGRAMMERS_SUPPORTED += openocd
+
+# On-board NXP TJA1051TK/3 FDCAN transceiver loop delay (datasheet: max 240 ns).
+ifneq (,$(filter periph_can,$(FEATURES_USED)))
+  CFLAGS += -DCONFIG_FDCAN_DEVICE_TRANSCEIVER_LOOP_DELAY=250
+endif

@@ -48,8 +48,16 @@ extern "C" {
  * @name    ISR functions
  * @{
  */
-#define ISR_FDCAN1_IT0  isr_fdcan1_it0  /**< Interrupt line 0 */
-#define ISR_FDCAN1_IT1  isr_fdcan1_it1  /**< Interrupt line 1 */
+#define ISR_FDCAN1_IT0  isr_fdcan1_it0  /**< FDCAN1 interrupt line 0 */
+#define ISR_FDCAN1_IT1  isr_fdcan1_it1  /**< FDCAN1 interrupt line 1 */
+#if defined(FDCAN2) || DOXYGEN
+#define ISR_FDCAN2_IT0  isr_fdcan2_it0  /**< FDCAN2 interrupt line 0 */
+#define ISR_FDCAN2_IT1  isr_fdcan2_it1  /**< FDCAN2 interrupt line 1 */
+#endif
+#if defined(FDCAN3) || DOXYGEN
+#define ISR_FDCAN3_IT0  isr_fdcan3_it0  /**< FDCAN3 interrupt line 0 */
+#define ISR_FDCAN3_IT1  isr_fdcan3_it1  /**< FDCAN3 interrupt line 1 */
+#endif
 /** @} */
 
 /**
