@@ -1,0 +1,8 @@
+CPU = stm32
+CPU_MODEL = stm32h573ii
+
+# Put defined MCU peripherals here (in alphabetical order)
+FEATURES_PROVIDED += periph_gpio
+FEATURES_PROVIDED += periph_timer
+FEATURES_PROVIDED += periph_uart
+# periph_pm will land in a follow-up commit once H5 PWR register layout is wired

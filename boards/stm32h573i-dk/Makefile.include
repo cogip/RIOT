@@ -1,0 +1,13 @@
+# we use shared STM32 configuration snippets
+INCLUDES += -I$(RIOTBOARD)/common/stm32/include
+
+# this board uses openocd with st-link V3
+PROGRAMMER ?= openocd
+
+# on-board ST-Link V3 debug adapter.
+# H5 requires the native SWD transport (dapdirect_swd) instead of the
+# HLA shortcut, so use the stlink-dap variant.
+OPENOCD_DEBUG_ADAPTER ?= stlink-dap
+
+# openocd programmer is supported
+PROGRAMMERS_SUPPORTED += openocd
