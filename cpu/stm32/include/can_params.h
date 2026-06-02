@@ -42,6 +42,17 @@ static const can_conf_t candev_conf[] = {
         .af = GPIO_AF9,
         .it0_irqn = FDCAN1_IT0_IRQn,
         .it1_irqn = FDCAN1_IT1_IRQn,
+#elif defined(CPU_FAM_STM32H5)
+        /* STM32H573I-DK: on-board TJA1051 transceiver wired to FDCAN2 on
+         * PB5 (RX) / PB6 (TX) per UM3140. The single FDCAN clock enable
+         * bit covers both FDCAN1 and FDCAN2 instances. */
+        .can = FDCAN2,
+        .rcc_mask = RCC_APB1HENR_FDCANEN,
+        .rx_pin = GPIO_PIN(PORT_B, 5),
+        .tx_pin = GPIO_PIN(PORT_B, 6),
+        .af = GPIO_AF9,
+        .it0_irqn = FDCAN2_IT0_IRQn,
+        .it1_irqn = FDCAN2_IT1_IRQn,
 #elif defined(CPU_FAM_STM32F0)
         .can = CAN,
         .rcc_mask = RCC_APB1ENR_CANEN,

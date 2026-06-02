@@ -248,10 +248,15 @@ void can_init(can_t *dev, const can_conf_t *conf)
      *   - H7: RCC->D2CCIP1R, FDCANSEL bit 0 = PLL1Q. The H7 clock tree has
      *     no PCLK mux for FDCAN, so we route the FDCAN kernel clock to
      *     PLL1Q and feed CLOCK_PLL1_Q_OUT into the bittiming computation.
+     *   - H5: RCC->CCIPR5, FDCANSEL bit 0 = PLL1Q. Same rationale as H7.
      */
 #if defined(CPU_FAM_STM32H7)
     RCC->D2CCIP1R &= ~RCC_D2CCIP1R_FDCANSEL;
     RCC->D2CCIP1R |= RCC_D2CCIP1R_FDCANSEL_0;
+    const uint32_t fdcan_kernel_clock = CLOCK_PLL1_Q_OUT;
+#elif defined(CPU_FAM_STM32H5)
+    RCC->CCIPR5 &= ~RCC_CCIPR5_FDCANSEL;
+    RCC->CCIPR5 |= RCC_CCIPR5_FDCANSEL_0;
     const uint32_t fdcan_kernel_clock = CLOCK_PLL1_Q_OUT;
 #else
     /* Use the PCLK (APB1 peripheral) clock by default as this clock is always available */
@@ -751,12 +756,16 @@ static int _init(candev_t *candev)
     dev->isr_flags.isr_tx = 0;
     dev->isr_flags.isr_rx = 0;
 
-    /* Enable device clock. FDCAN sits on APB1L on G4 but on APB1H on H7
+    /* Enable device clock. FDCAN sits on APB1L on G4 but on APB1H on H7/H5
      * (which RIOT exposes as the APB12 bus token). */
 #if defined(CPU_FAM_STM32H7)
     periph_clk_en(APB12, dev->conf->rcc_mask);
     DEBUG("%s: FDCAN%u RCC->D2CCIP1R = %lx\n",
           __func__, get_channel_id(can), RCC->D2CCIP1R);
+#elif defined(CPU_FAM_STM32H5)
+    periph_clk_en(APB12, dev->conf->rcc_mask);
+    DEBUG("%s: FDCAN%u RCC->CCIPR5 = %lx\n",
+          __func__, get_channel_id(can), RCC->CCIPR5);
 #else
     periph_clk_en(APB1, dev->conf->rcc_mask);
     DEBUG("%s: FDCAN%u RCC->CCIPR = %lx\n",

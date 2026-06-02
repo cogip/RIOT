@@ -163,6 +163,20 @@ extern "C" {
         ((CLOCK_PLL_SRC / CONFIG_CLOCK_PLL_M) * CONFIG_CLOCK_PLL_N) / CONFIG_CLOCK_PLL_P
 #endif
 
+/**
+ * @name    PLL1 secondary outputs
+ *
+ * Exposed for peripherals (FDCAN, etc.) that need an alternative kernel clock
+ * derived from the PLL1 VCO. Computed even when PLL1 is not the system clock,
+ * because peripheral drivers may still query these values.
+ * @{
+ */
+#define CLOCK_PLL1_Q_OUT \
+        (((CLOCK_PLL_SRC / CONFIG_CLOCK_PLL_M) * CONFIG_CLOCK_PLL_N) / CONFIG_CLOCK_PLL_Q)
+#define CLOCK_PLL1_R_OUT \
+        (((CLOCK_PLL_SRC / CONFIG_CLOCK_PLL_M) * CONFIG_CLOCK_PLL_N) / CONFIG_CLOCK_PLL_R)
+/** @} */
+
 #define CLOCK_CORECLOCK_MAX             MHZ(250)
 #if CLOCK_CORECLOCK > CLOCK_CORECLOCK_MAX
 #error "SYSCLK exceeds the STM32H5 maximum of 250 MHz"

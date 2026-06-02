@@ -59,8 +59,15 @@ static const IRQn_Type _stm32u3_exti_irqn[EXTI_NUMOF] = {
     defined(CPU_FAM_STM32L5)
 #define EXTI_REG_RTSR       (EXTI->RTSR1)
 #define EXTI_REG_FTSR       (EXTI->FTSR1)
-#define EXTI_REG_PR         (EXTI->PR1)
 #define EXTI_REG_IMR        (EXTI->IMR1)
+#  if defined(CPU_FAM_STM32H5)
+/* H5 EXTI uses split rising/falling pending registers (no PR1). The legacy
+ * EXTI_REG_PR macro is left undefined here so that the EXTI_REG_PR fallback
+ * path below (which writes EXTI->PR) cannot be selected; the H5 codepath
+ * uses EXTI->RPR1 / EXTI->FPR1 directly like G0/L5/U5/C0. */
+#  else
+#define EXTI_REG_PR         (EXTI->PR1)
+#  endif
 #elif defined(CPU_FAM_STM32MP1)
 #define EXTI_REG_RTSR       (EXTI->RTSR1)
 #define EXTI_REG_FTSR       (EXTI->FTSR1)
@@ -270,6 +277,9 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
     periph_clk_en(APB3, RCC_APB3ENR_SYSCFGEN);
 #elif defined(CPU_FAM_STM32U5)
     periph_clk_en(APB3, RCC_APB3ENR_SYSCFGEN);
+#elif defined(CPU_FAM_STM32H5)
+    /* H5 renamed the system configuration block to SBS (System-Block-Sense). */
+    periph_clk_en(APB3, RCC_APB3ENR_SBSEN);
 #elif defined(CPU_FAM_STM32H7)
     periph_clk_en(APB4, RCC_APB4ENR_SYSCFGEN);
 #else
@@ -281,7 +291,8 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
     gpio_init(pin, mode);
 
     /* enable global pin interrupt */
-#if defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32U5)
+#if defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32U5) || \
+    defined(CPU_FAM_STM32H5)
     NVIC_EnableIRQ(EXTI0_IRQn + pin_num);
 #elif defined(CPU_FAM_STM32U3)
     NVIC_EnableIRQ(_stm32u3_exti_irqn[pin_num]);
@@ -340,7 +351,7 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
 
 #if defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32U3) || defined(CPU_FAM_STM32C0) || \
-    defined(CPU_FAM_STM32U5)
+    defined(CPU_FAM_STM32U5) || defined(CPU_FAM_STM32H5)
     /* enable specific pin as exti sources */
     EXTI->EXTICR[pin_num >> 2] &= ~(0xf << ((pin_num & 0x03) * 8));
     EXTI->EXTICR[pin_num >> 2] |= (port_num << ((pin_num & 0x03) * 8));
@@ -356,7 +367,8 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
 
 #if defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32U3) || defined(CPU_FAM_STM32MP1) || \
-    defined(CPU_FAM_STM32C0) || defined(CPU_FAM_STM32U5)
+    defined(CPU_FAM_STM32C0) || defined(CPU_FAM_STM32U5) || \
+    defined(CPU_FAM_STM32H5)
     /* clear any pending requests */
     EXTI->RPR1 = (1 << pin_num);
     EXTI->FPR1 = (1 << pin_num);
@@ -374,7 +386,8 @@ void isr_exti(void)
 {
 #if defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32U3) || defined(CPU_FAM_STM32MP1) || \
-    defined(CPU_FAM_STM32C0) || defined(CPU_FAM_STM32U5)
+    defined(CPU_FAM_STM32C0) || defined(CPU_FAM_STM32U5) || \
+    defined(CPU_FAM_STM32H5)
     /* get all interrupts handled by this ISR */
     uint32_t pending_rising_isr = (EXTI->RPR1 & EXTI_MASK);
     uint32_t pending_falling_isr = (EXTI->FPR1 & EXTI_MASK);
