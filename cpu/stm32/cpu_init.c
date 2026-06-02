@@ -45,6 +45,9 @@
 #define BIT_APB_PWREN       RCC_APBENR1_PWREN
 #elif defined (CPU_FAM_STM32H7)
 #define BIT_APB_PWREN       RCC_APB1HENR_CRSEN
+#elif defined (CPU_FAM_STM32H5)
+/* STM32H5 PWR is always-on and has no clock enable bit. */
+#define BIT_APB_PWREN       (0U)
 #elif !defined(CPU_FAM_STM32MP1)
 #define BIT_APB_PWREN       RCC_APB1ENR_PWREN
 #endif

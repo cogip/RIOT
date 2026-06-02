@@ -210,22 +210,38 @@ else ifeq ($(STM32_TYPE), G)
     endif
   endif
 else ifeq ($(STM32_TYPE), H)
-  RAM_START_ADDR = 0x24000000
-  ifeq ($(STM32_MODEL), 723)
-    RAM_LEN = 320K
-  else ifeq ($(STM32_MODEL), 753)
-    RAM_LEN = 512K
-    ROM_LEN = 2048K     # 2 MB Flash
-    BACKUP_RAM_ADDR = 0x38800000
-    BACKUP_RAM_LEN = 0x4K
-  else ifeq ($(STM32_MODEL), 755)
-    # Dual-core (M7 + M4). Same memory map as H753: 512K AXI SRAM in D1
-    # mapped to the M7 core. ROM_LEN comes from the generic ROMSIZE
-    # parser (I -> 2 MB total; the M4 bank stays unused while RIOT
-    # runs only on M7).
-    RAM_LEN = 512K
-    BACKUP_RAM_ADDR = 0x38800000
-    BACKUP_RAM_LEN = 0x4K
+  ifeq ($(STM32_FAMILY), 5)
+    # STM32H5 family: SRAM1+SRAM2+SRAM3 are contiguous at 0x20000000.
+    # H573II: 640 KB (256+64+320) RAM, 2 MB Flash.
+    # H563xx: 640 KB RAM, 2 MB Flash.
+    # H523xx / H533xx: 272 KB (128+64+80) RAM, 512 KB Flash.
+    # H503xx: 32 KB SRAM, 128 KB Flash.
+    RAM_START_ADDR = 0x20000000
+    ifneq (, $(filter $(STM32_MODEL), 573 563))
+      RAM_LEN = 640K
+    else ifneq (, $(filter $(STM32_MODEL), 523 533))
+      RAM_LEN = 272K
+    else ifeq ($(STM32_MODEL), 503)
+      RAM_LEN = 32K
+    endif
+  else
+    RAM_START_ADDR = 0x24000000
+    ifeq ($(STM32_MODEL), 723)
+      RAM_LEN = 320K
+    else ifeq ($(STM32_MODEL), 753)
+      RAM_LEN = 512K
+      ROM_LEN = 2048K     # 2 MB Flash
+      BACKUP_RAM_ADDR = 0x38800000
+      BACKUP_RAM_LEN = 0x4K
+    else ifeq ($(STM32_MODEL), 755)
+      # Dual-core (M7 + M4). Same memory map as H753: 512K AXI SRAM in D1
+      # mapped to the M7 core. ROM_LEN comes from the generic ROMSIZE
+      # parser (I -> 2 MB total; the M4 bank stays unused while RIOT
+      # runs only on M7).
+      RAM_LEN = 512K
+      BACKUP_RAM_ADDR = 0x38800000
+      BACKUP_RAM_LEN = 0x4K
+    endif
   endif
 else ifeq ($(STM32_TYPE), L)
   ifeq ($(STM32_FAMILY), 0)

@@ -61,6 +61,9 @@
 #elif defined(CPU_FAM_STM32H7)
 /* Low power deep sleep with SVOS5 Scale 5 and flash in low power mode if in DSTOP */
 #define PM_STOP_CONFIG  (PWR_CR1_LPDS | PWR_CR1_FLPS | PWR_CR1_SVOS_0)
+#elif defined(CPU_FAM_STM32H5)
+/* H5 low-power not yet wired in RIOT */
+#define PM_STOP_CONFIG  (0U)
 #else
 #define PM_STOP_CONFIG  (PWR_CR_LPDS | PWR_CR_FPDS)
 #endif
@@ -89,6 +92,8 @@
 #elif defined(CPU_FAM_STM32H7)
     /* Set D1 and D2 domains to enter DStandby */
 #  define PM_STANDBY_CONFIG   (PWR_CPUCR_PDDS_D1 | PWR_CPUCR_PDDS_D2 | PWR_CPUCR_PDDS_D3)
+#elif defined(CPU_FAM_STM32H5)
+#define PM_STANDBY_CONFIG   (0U)
 #else
 #define PM_STANDBY_CONFIG   (PWR_CR_PDDS | PWR_CR_CWUF | PWR_CR_CSBF)
 #endif
@@ -116,6 +121,11 @@
 #  define PWR_CR_REG     PWR->CR1
 #  define PWR_WUP_REG    PWR->WKUPEPR
 #  define PWR_CPUCR_REG  PWR->CPUCR
+#elif defined(CPU_FAM_STM32H5)
+/* STM32H5 PWR has its own register layout. Low-power modes are not yet
+ * wired up; expose PMCR / WUSCR so pm.c compiles but no bits get set. */
+#  define PWR_CR_REG     PWR->PMCR
+#  define PWR_WUP_REG    PWR->WUSCR
 #else
 #define PWR_CR_REG     PWR->CR
 #define PWR_WUP_REG    PWR->CSR

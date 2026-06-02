@@ -52,6 +52,8 @@ def list_cpu_lines(cmsis_dir, cpu_fam):
     headers = os.listdir(cmsis_dir)
     if "Templates" in headers:
         headers.remove("Templates")
+    if "partition_stm32h5xx.h" in headers:
+        headers.remove("partition_stm32h5xx.h")
     if "partition_stm32l5xx.h" in headers:
         headers.remove("partition_stm32l5xx.h")
     if "partition_stm32u5xx.h" in headers:

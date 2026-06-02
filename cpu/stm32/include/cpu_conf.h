@@ -75,11 +75,18 @@ extern "C" {
 #  define CPU_IRQ_NUMOF                   (150U)
 #endif
 
+/* Provide a CPU_IRQ_NUMOF for STM32H5 family.
+ * STM32H573 exposes 130 maskable interrupt lines per RM0481.
+ */
+#if defined(CPU_FAM_STM32H5) && !defined(CPU_IRQ_NUMOF)
+#  define CPU_IRQ_NUMOF                   (130U)
+#endif
+
 /**
  * @brief   Flash page configuration
  * @{
  */
-#if defined(CPU_FAM_STM32U5)
+#if defined(CPU_FAM_STM32U5) || defined(CPU_FAM_STM32H5)
 #define FLASHPAGE_SIZE                  (8192U)
 #elif defined(CPU_FAM_STM32WB)
 #define FLASHPAGE_SIZE                  (4096U)

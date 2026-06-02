@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2026 Cogip
+# SPDX-License-Identifier: LGPL-2.1-only
+
+# CPU models
+config CPU_MODEL_STM32H573II
+    bool
+    select CPU_LINE_STM32H573XX
+
+config CPU_MODEL_STM32H573ZI
+    bool
+    select CPU_LINE_STM32H573XX
+
+config CPU_MODEL_STM32H573VI
+    bool
+    select CPU_LINE_STM32H573XX
+
+config CPU_MODEL_STM32H573RI
+    bool
+    select CPU_LINE_STM32H573XX
+
+config CPU_MODEL_STM32H563II
+    bool
+    select CPU_LINE_STM32H563XX
+
+config CPU_MODEL_STM32H563ZI
+    bool
+    select CPU_LINE_STM32H563XX
+
+config CPU_MODEL_STM32H563VI
+    bool
+    select CPU_LINE_STM32H563XX
+
+config CPU_MODEL_STM32H563RI
+    bool
+    select CPU_LINE_STM32H563XX
+
+config CPU_MODEL_STM32H503RB
+    bool
+    select CPU_LINE_STM32H503XX
+
+config CPU_MODEL_STM32H503CB
+    bool
+    select CPU_LINE_STM32H503XX
+
+config CPU_MODEL_STM32H503KB
+    bool
+    select CPU_LINE_STM32H503XX
+
+# Configure CPU model
+config CPU_MODEL
+    default "stm32h503cb" if CPU_MODEL_STM32H503CB
+    default "stm32h503kb" if CPU_MODEL_STM32H503KB
+    default "stm32h503rb" if CPU_MODEL_STM32H503RB
+    default "stm32h563ri" if CPU_MODEL_STM32H563RI
+    default "stm32h563vi" if CPU_MODEL_STM32H563VI
+    default "stm32h563zi" if CPU_MODEL_STM32H563ZI
+    default "stm32h563ii" if CPU_MODEL_STM32H563II
+    default "stm32h573ri" if CPU_MODEL_STM32H573RI
+    default "stm32h573vi" if CPU_MODEL_STM32H573VI
+    default "stm32h573zi" if CPU_MODEL_STM32H573ZI
+    default "stm32h573ii" if CPU_MODEL_STM32H573II

@@ -29,6 +29,9 @@
 #elif defined(CPU_FAM_STM32U3) || defined(CPU_FAM_STM32U5)
 #define REG_PWR_CR          DBPR
 #define BIT_CR_DBP          PWR_DBPR_DBP
+#elif defined(CPU_FAM_STM32H5)
+#define REG_PWR_CR          DBPCR
+#define BIT_CR_DBP          PWR_DBPCR_DBP
 #elif defined(CPU_FAM_STM32H7)
 #  if defined(PWR_CR1_DBP)
 #    define REG_PWR_CR          CR1
@@ -65,7 +68,7 @@
 #define RCC_CSR_LSIRDY          RCC_CSR_LSI1RDY
 #endif
 
-#if defined (CPU_FAM_STM32U5)
+#if defined (CPU_FAM_STM32U5) || defined(CPU_FAM_STM32H5)
 #define RCC_CSR_LSION           RCC_BDCR_LSION
 #define RCC_CSR_LSIRDY          RCC_BDCR_LSIRDY
 #endif
@@ -105,6 +108,9 @@ void stmclk_enable_lfclk(void)
 #if defined(CPU_FAM_STM32C0)
         RCC->CSR2 |= RCC_CSR2_LSION;
         while (!(RCC->CSR2 & RCC_CSR2_LSIRDY)) {}
+#elif defined(CPU_FAM_STM32H5)
+        RCC->BDCR |= RCC_BDCR_LSION;
+        while (!(RCC->BDCR & RCC_BDCR_LSIRDY)) {}
 #else
         RCC->CSR |= RCC_CSR_LSION;
         while (!(RCC->CSR & RCC_CSR_LSIRDY)) {}
@@ -123,6 +129,8 @@ void stmclk_disable_lfclk(void)
     else {
 #if defined(CPU_FAM_STM32C0)
         RCC->CSR2 &= ~(RCC_CSR2_LSION);
+#elif defined(CPU_FAM_STM32H5)
+        RCC->BDCR &= ~(RCC_BDCR_LSION);
 #else
         RCC->CSR &= ~(RCC_CSR_LSION);
 #endif

@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Cogip
+# SPDX-License-Identifier: LGPL-2.1-only
+
+# CPU lines
+config CPU_LINE_STM32H503XX
+    bool
+    select CPU_FAM_H5
+
+config CPU_LINE_STM32H523XX
+    bool
+    select CPU_FAM_H5
+
+config CPU_LINE_STM32H533XX
+    bool
+    select CPU_FAM_H5
+
+config CPU_LINE_STM32H562XX
+    bool
+    select CPU_FAM_H5
+
+config CPU_LINE_STM32H563XX
+    bool
+    select CPU_FAM_H5
+
+config CPU_LINE_STM32H573XX
+    bool
+    select CPU_FAM_H5

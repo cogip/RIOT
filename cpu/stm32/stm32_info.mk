@@ -83,6 +83,9 @@ else ifeq (l0,$(CPU_FAM))
   SVD_MODEL := STM32L0x$(STM32_MODEL3)
 else ifeq (c0,$(CPU_FAM))
   CPU_CORE = cortex-m0plus
+else ifeq (h5,$(CPU_FAM))
+  CPU_CORE = cortex-m33
+  SVD_MODEL := STM32H$(STM32_MODEL)
 else ifeq (l5,$(CPU_FAM))
   CPU_CORE = cortex-m33
   SVD_MODEL := STM32L$(STM32_MODEL)

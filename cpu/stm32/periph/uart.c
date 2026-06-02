@@ -44,7 +44,8 @@
 #elif defined(CPU_FAM_STM32F0) || defined(CPU_FAM_STM32L0) || \
       defined(CPU_FAM_STM32F3) || defined(CPU_FAM_STM32L4) || \
       defined(CPU_FAM_STM32WB) || defined(CPU_FAM_STM32F7) || \
-      defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32MP1)
+      defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32MP1) || \
+      defined(CPU_FAM_STM32H5)
 #define ISR_REG     ISR
 #define ISR_TXE     USART_ISR_TXE
 #define ISR_RXNE    USART_ISR_RXNE

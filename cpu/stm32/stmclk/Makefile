@@ -8,6 +8,8 @@ ifneq (,$(filter $(CPU_FAM),f2 f4 f7))
   SRC += stmclk_f2f4f7.c
 else ifneq (,$(filter $(CPU_FAM),f0 f1 f3))
   SRC += stmclk_f0f1f3.c
+else ifneq (,$(filter $(CPU_FAM),h5))
+  SRC += stmclk_h5.c
 else ifneq (,$(filter $(CPU_FAM),h7))
   SRC += stmclk_h7.c
 else ifneq (,$(filter $(CPU_FAM),l0 l1))
