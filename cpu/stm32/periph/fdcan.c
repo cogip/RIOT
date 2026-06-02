@@ -1681,19 +1681,25 @@ static void rx_new_message_irq_handler(can_t *dev, uint8_t message_ram_rx_fifo)
         int i = dev->rx_mailbox.write_idx;
         read_frame(dev, &(dev->rx_mailbox.frame[i]), message_ram_rx_fifo);
 
-        if (!dev->isr_flags.isr_rx) {
-            dev->isr_flags.isr_rx |= message_ram_rx_fifo + 1;
-            if (dev->candev.event_callback) {
-                dev->candev.event_callback(candev, CANDEV_EVENT_ISR, NULL);
-            }
-        }
-
+        /* Commit the new frame to the mailbox before dispatching it.
+         * rx_isr exits as soon as read_idx == write_idx, so the
+         * write_idx advance must happen before event_callback runs the
+         * drain, otherwise the just-written frame stays stuck until
+         * the next message arrives and the last frame in a burst is
+         * never delivered. */
         dev->rx_mailbox.write_idx++;
         if (dev->rx_mailbox.write_idx == FDCAN_STM32_RX_MAILBOXES) {
             dev->rx_mailbox.write_idx = 0;
         }
         if (dev->rx_mailbox.write_idx == dev->rx_mailbox.read_idx) {
             dev->rx_mailbox.is_full = 1;
+        }
+
+        if (!dev->isr_flags.isr_rx) {
+            dev->isr_flags.isr_rx |= message_ram_rx_fifo + 1;
+            if (dev->candev.event_callback) {
+                dev->candev.event_callback(candev, CANDEV_EVENT_ISR, NULL);
+            }
         }
     }
     else {
