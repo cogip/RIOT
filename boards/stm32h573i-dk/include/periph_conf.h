@@ -82,6 +82,37 @@ static const uart_conf_t uart_config[] = {
 #define UART_NUMOF          ARRAY_SIZE(uart_config)
 /** @} */
 
+/**
+ * @name    Ethernet configuration
+ *
+ * The STM32H573I-DK ships with a LAN8742A 10/100 PHY wired to the MAC in
+ * RMII mode, MDIO address 0x00 (per UM3140). Pin map matches the ST BSP
+ * `stm32h573i_discovery.h`: TXD0/TXD1/TX_EN on port G, the RX pair and
+ * MDC on port C, MDIO / REF_CLK / CRS_DV on port A. All on AF11.
+ * @{
+ */
+#include "mii.h"
+
+static const eth_conf_t eth_config = {
+    .mode = RMII,
+    .speed = MII_BMCR_SPEED_100 | MII_BMCR_FULL_DPLX,
+    .dma = 0,
+    .dma_chan = 0,
+    .phy_addr = 0x00,
+    .pins = {
+        GPIO_PIN(PORT_G, 13),       /* RMII_TXD0     */
+        GPIO_PIN(PORT_G, 12),       /* RMII_TXD1     */
+        GPIO_PIN(PORT_G, 11),       /* RMII_TX_EN    */
+        GPIO_PIN(PORT_C, 4),        /* RMII_RXD0     */
+        GPIO_PIN(PORT_C, 5),        /* RMII_RXD1     */
+        GPIO_PIN(PORT_A, 7),        /* RMII_CRS_DV   */
+        GPIO_PIN(PORT_C, 1),        /* ETH_MDC       */
+        GPIO_PIN(PORT_A, 2),        /* ETH_MDIO      */
+        GPIO_PIN(PORT_A, 1),        /* RMII_REF_CLK  */
+    }
+};
+/** @} */
+
 #ifdef __cplusplus
 }
 #endif
