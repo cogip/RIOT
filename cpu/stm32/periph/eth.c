@@ -20,12 +20,12 @@
 #include "cpu_conf.h"
 
 /* This driver targets the Synopsys DesignWare MAC v3.x peripheral
- * (F2/F4/F7). STM32H7 ships the v5.x revision with a completely
- * different register layout and is served by eth_v5.c. The submodule
- * autodiscovery in cpu/stm32/periph/Makefile would otherwise pull
- * eth.c into the H7 build via the periph_eth module name and break
- * the compilation on unknown registers. */
-#if !defined(CPU_FAM_STM32H7)
+ * (F2/F4/F7). STM32H5 and STM32H7 ship the v5.x revision with a
+ * completely different register layout and are served by eth_v5.c.
+ * The submodule autodiscovery in cpu/stm32/periph/Makefile would
+ * otherwise pull eth.c into the H5/H7 build via the periph_eth
+ * module name and break the compilation on unknown registers. */
+#if !defined(CPU_FAM_STM32H5) && !defined(CPU_FAM_STM32H7)
 
 #include <assert.h>
 #include <errno.h>
@@ -836,4 +836,4 @@ void stm32_eth_netdev_setup(netdev_t *netdev)
     netdev_register(netdev, NETDEV_STM32_ETH, 0);
 }
 
-#endif /* !CPU_FAM_STM32H7 */
+#endif /* !CPU_FAM_STM32H5 && !CPU_FAM_STM32H7 */

@@ -8,19 +8,25 @@
  * @{
  *
  * @file
- * @brief       Low-level ETH driver implementation for the STM32H7
+ * @brief       Low-level ETH driver implementation for the STM32H5/H7
  *              Synopsys DesignWare MAC v5 IP block.
  *
- * Structure mirrors cpu/stm32/periph/eth.c. The v5 descriptor
- * format and register set come from the H7 reference manual; ST's
- * HAL was used as a sanity check on bit positions only.
+ * Structure mirrors cpu/stm32/periph/eth.c. The v5 descriptor format
+ * and register set come from the H7 reference manual (RM0433) and
+ * the H5 reference manual (RM0481), which share the same MAC IP;
+ * ST's HAL was used as a sanity check on bit positions only.
  *
- * The DMA descriptors and RX buffers live in SRAM3 via the .eth_ram
- * linker section. SRAM3 is currently used as plain SRAM because RIOT
- * does not enable the M7 D-cache on stm32h7, so DMA coherency does
- * not require an MPU non-cacheable region. When the D-cache is later
- * enabled, configure an MPU region over SRAM3 with TEX=1/C=0/B=1/S=1
- * to keep this driver coherent without per-frame cache management.
+ * On H7 the DMA descriptors and RX buffers live in SRAM3 via the
+ * .eth_ram linker section. SRAM3 is currently used as plain SRAM
+ * because RIOT does not enable the M7 D-cache, so DMA coherency
+ * does not require an MPU non-cacheable region. When the D-cache is
+ * later enabled, configure an MPU region over SRAM3 with
+ * TEX=1/C=0/B=1/S=1 to keep this driver coherent without per-frame
+ * cache management.
+ *
+ * On H5 the Cortex-M33 has no integrated L1 D-cache, so DMA buffers
+ * are placed in regular .bss without a dedicated non-cacheable
+ * region.
  *
  * @author      Gilles DOFFE <g.doffe@gmail.com>
  *
@@ -43,6 +49,16 @@
 
 #define ENABLE_DEBUG    0
 #include "debug.h"
+
+/* H5 has no L1 D-cache, so DMA buffers can live in regular .bss;
+ * H7 carves a non-cacheable region out of SRAM3 via the .eth_ram
+ * linker section to keep them coherent if the D-cache is ever
+ * enabled. */
+#if defined(CPU_FAM_STM32H5)
+#define ETH_DMA_BUF __attribute__((aligned(32)))
+#else
+#define ETH_DMA_BUF __attribute__((section(".eth_ram"), aligned(32)))
+#endif
 
 #ifndef ETH_RX_DESCRIPTOR_COUNT
 #define ETH_RX_DESCRIPTOR_COUNT     (8U)
@@ -86,16 +102,13 @@ typedef struct {
 #define TX_DESC_WB_OWN      (1U << 31)
 #define TX_DESC_WB_ES       (1U << 15)
 
-/* Descriptors and RX buffers must be DMA-coherent. The .eth_ram
- * section is mapped to SRAM3 by cpu/stm32/Makefile.include, and the
- * MPU below marks the region non-cacheable. */
-__attribute__((section(".eth_ram"), aligned(32)))
+ETH_DMA_BUF
 static eth_v5_dma_desc_t rx_desc[ETH_RX_DESCRIPTOR_COUNT];
 
-__attribute__((section(".eth_ram"), aligned(32)))
+ETH_DMA_BUF
 static eth_v5_dma_desc_t tx_desc[ETH_TX_DESCRIPTOR_COUNT];
 
-__attribute__((section(".eth_ram"), aligned(32)))
+ETH_DMA_BUF
 static uint8_t rx_buffer[ETH_RX_DESCRIPTOR_COUNT][ETH_RX_BUFFER_SIZE];
 
 /* TX coalescing buffer: upper layers hand the MAC multi-segment
@@ -105,7 +118,7 @@ static uint8_t rx_buffer[ETH_RX_DESCRIPTOR_COUNT][ETH_RX_BUFFER_SIZE];
  * before being handed to the DMA. */
 #define ETH_TX_BUFFER_SIZE      (1536U)
 
-__attribute__((section(".eth_ram"), aligned(32)))
+ETH_DMA_BUF
 static uint8_t tx_buffer[ETH_TX_DESCRIPTOR_COUNT][ETH_TX_BUFFER_SIZE];
 
 static unsigned rx_idx;
@@ -238,20 +251,42 @@ static int stm32_eth_init(netdev_t *netdev)
         gpio_init_af(eth_config.pins[i], GPIO_AF11);
     }
 
-    /* SYSCFG access for the MII/RMII selector. */
+    /* PHY interface selector. H7 exposes it via SYSCFG_PMCR.EPIS_SEL
+     * on APB4; H5 renames the peripheral to SBS and moves it to APB3,
+     * with the same RMII = 0b100 encoding under a different bit
+     * symbol (ETH_SEL_PHY). */
+#if defined(CPU_FAM_STM32H5)
+    RCC->APB3ENR |= RCC_APB3ENR_SBSEN;
+    SBS->PMCR &= ~SBS_PMCR_ETH_SEL_PHY;
+    if (eth_config.mode == RMII) {
+        SBS->PMCR |= SBS_PMCR_ETH_SEL_PHY_2;
+    }
+    (void)SBS->PMCR;
+#else
     RCC->APB4ENR |= RCC_APB4ENR_SYSCFGEN;
     SYSCFG->PMCR &= ~SYSCFG_PMCR_EPIS_SEL;
     if (eth_config.mode == RMII) {
         SYSCFG->PMCR |= SYSCFG_PMCR_EPIS_SEL_2;     /* 0b100 = RMII */
     }
     (void)SYSCFG->PMCR;
+#endif
 
-    /* MAC, MAC-TX, MAC-RX clocks plus a reset pulse. */
+    /* MAC, MAC-TX, MAC-RX clocks plus a reset pulse. The H7 CMSIS
+     * tags the bits as ETH1xxx because the IP block is part of D2;
+     * H5 has a single ETH peripheral and drops the suffix. */
+#if defined(CPU_FAM_STM32H5)
+    RCC->AHB1ENR |= RCC_AHB1ENR_ETHEN
+                  | RCC_AHB1ENR_ETHTXEN
+                  | RCC_AHB1ENR_ETHRXEN;
+    RCC->AHB1RSTR |= RCC_AHB1RSTR_ETHRST;
+    RCC->AHB1RSTR &= ~RCC_AHB1RSTR_ETHRST;
+#else
     RCC->AHB1ENR |= RCC_AHB1ENR_ETH1MACEN
                   | RCC_AHB1ENR_ETH1TXEN
                   | RCC_AHB1ENR_ETH1RXEN;
     RCC->AHB1RSTR |= RCC_AHB1RSTR_ETH1MACRST;
     RCC->AHB1RSTR &= ~RCC_AHB1RSTR_ETH1MACRST;
+#endif
 
     /* DMA software reset. */
     ETH->DMAMR |= ETH_DMAMR_SWR;
@@ -469,6 +504,15 @@ static int stm32_eth_set(netdev_t *netdev, netopt_t opt,
 static void stm32_eth_isr(netdev_t *netdev)
 {
     netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
+
+    /* Recover from lost/coalesced RX interrupts (and from an RBU-induced DMA
+     * suspend): if the DMA has already written a frame into the next
+     * descriptor but produced no fresh interrupt, the upper layer has stopped
+     * draining and the frame would otherwise sit until the next periodic
+     * timer (~1 s). Re-schedule so draining continues right away. */
+    if (!(rx_desc[rx_idx].des3 & RX_DESC_WB_OWN)) {
+        netdev_trigger_event_isr(netdev);
+    }
 }
 
 void isr_eth(void)
@@ -493,6 +537,12 @@ void isr_eth(void)
      * separately and would otherwise stick. */
     if (dmacsr & ETH_DMACSR_RBU) {
         ETH->DMACSR = ETH_DMACSR_RBU;
+        /* The RX ring ran dry (all descriptors CPU-owned) and the DMA
+         * suspended. Wake the stack so recv() drains and re-arms the
+         * descriptors; recv() writes DMACRDTPR which resumes the DMA. */
+        if (stm32_eth_netdev) {
+            netdev_trigger_event_isr(stm32_eth_netdev);
+        }
     }
     if (dmacsr & ETH_DMACSR_AIS) {
         ETH->DMACSR = ETH_DMACSR_AIS | ETH_DMACSR_FBE | ETH_DMACSR_RWT;

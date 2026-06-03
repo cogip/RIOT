@@ -88,7 +88,7 @@ endif
 #   name, we add it explicitly here and rely on H7 boards never enabling
 #   periph_eth without selecting this driver.
 ifneq (,$(filter periph_eth,$(FEATURES_USED)))
-  ifneq (,$(filter h7,$(CPU_FAM)))
+  ifneq (,$(filter h5 h7,$(CPU_FAM)))
 	SRC += eth_v5.c
   endif
 endif

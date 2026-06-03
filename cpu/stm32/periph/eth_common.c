@@ -20,10 +20,11 @@
 #include "cpu_conf.h"
 
 /* The helpers below configure the MAC v3.x SYSCFG / RCC layout which
- * does not match the H7 MAC v5.x. eth_v5.c carries its own equivalent
- * setup; gate this file out on H7 so the periph_eth_common submodule
- * still compiles into an empty translation unit there. */
-#if !defined(CPU_FAM_STM32H7)
+ * does not match the H5/H7 MAC v5.x. eth_v5.c carries its own
+ * equivalent setup; gate this file out on H5/H7 so the
+ * periph_eth_common submodule still compiles into an empty
+ * translation unit there. */
+#if !defined(CPU_FAM_STM32H5) && !defined(CPU_FAM_STM32H7)
 
 #include <string.h>
 
@@ -150,4 +151,4 @@ void isr_eth(void)
 }
 #endif
 
-#endif /* !CPU_FAM_STM32H7 */
+#endif /* !CPU_FAM_STM32H5 && !CPU_FAM_STM32H7 */
