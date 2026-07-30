@@ -45,7 +45,10 @@ static const can_conf_t candev_conf[] = {
 #elif defined(CPU_FAM_STM32H5)
         /* STM32H573I-DK: on-board TJA1051 transceiver wired to FDCAN2 on
          * PB5 (RX) / PB6 (TX) per UM3140. The single FDCAN clock enable
-         * bit covers both FDCAN1 and FDCAN2 instances. */
+         * bit covers both FDCAN1 and FDCAN2 instances.
+         * Boards with a different FDCAN pinout (e.g. cogip-board-h5 on
+         * FDCAN1 / PA11 / PA12) ship their own boards/<board>/include/
+         * can_params.h, which shadows this cpu-level default. */
         .can = FDCAN2,
         .rcc_mask = RCC_APB1HENR_FDCANEN,
         .rx_pin = GPIO_PIN(PORT_B, 5),
