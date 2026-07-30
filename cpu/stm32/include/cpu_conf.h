@@ -183,7 +183,11 @@ extern "C" {
 /* The minimum block size which can be written depends on the family.
  * However, the erase block is always FLASHPAGE_SIZE.
  */
-#if defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
+#if defined(CPU_FAM_STM32H5)
+/* STM32H5 programs a full 128-bit (16 byte) quadword at a time */
+#define FLASHPAGE_WRITE_BLOCK_SIZE            (16U)
+typedef struct { uint32_t words[4]; } stm32_flashpage_block_t;
+#elif defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
     defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32U5) || \
     defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0)
@@ -199,7 +203,9 @@ typedef uint32_t stm32_flashpage_block_t;
 typedef uint16_t stm32_flashpage_block_t;
 #endif
 
-#if defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
+#if defined(CPU_FAM_STM32H5)
+#define FLASHPAGE_WRITE_BLOCK_ALIGNMENT       (16U)
+#elif defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
     defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32U5) || \
     defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0)

@@ -80,6 +80,13 @@ ifneq (,$(filter $(CPU_FAM),f2 f4 f7))
   FEATURES_PROVIDED += periph_flashpage
 endif
 
+# STM32H5: homogeneous 8 KiB sectors, dual-bank, 128-bit quadword writes
+ifneq (,$(filter $(CPU_FAM),h5))
+  FEATURES_PROVIDED += periph_flashpage
+  FEATURES_PROVIDED += periph_flashpage_in_address_space
+  FEATURES_PROVIDED += periph_flashpage_pagewise
+endif
+
 ifneq (,$(filter $(CPU_FAM),l0 l1))
   FEATURES_PROVIDED += periph_eeprom
 endif

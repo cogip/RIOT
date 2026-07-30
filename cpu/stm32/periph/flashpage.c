@@ -60,6 +60,17 @@
 #define FLASH_CR_PNB           (FLASH_CR_SNB)
 #define FLASH_CR_PNB_Pos       (FLASH_CR_SNB_Pos)
 #define CNTRL_REG              (FLASH->CR)
+#elif defined(CPU_FAM_STM32H5)
+/* STM32H5 (TrustZone disabled): non-secure control register NSCR, sector
+ * erase (SER) selected by 7-bit sector number (SNB) + bank select (BKSEL),
+ * triggered by START. Bitfield macros keep the generic FLASH_CR_* names. */
+#define CNTRL_REG              (FLASH->NSCR)
+#define CNTRL_REG_LOCK         (FLASH_CR_LOCK)
+#define FLASH_CR_PER           (FLASH_CR_SER)
+#define FLASH_CR_PNB           (FLASH_CR_SNB)
+#define FLASH_CR_PNB_Pos       (FLASH_CR_SNB_Pos)
+#define FLASH_CR_STRT          (FLASH_CR_START)
+#define FLASH_CR_BKER          (FLASH_CR_BKSEL)
 #else
 #define CNTRL_REG              (FLASH->CR)
 #define CNTRL_REG_LOCK         (FLASH_CR_LOCK)
@@ -70,7 +81,7 @@ extern void _unlock(void);
 extern void _wait_for_pending_operations(void);
 
 #if defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32L5) || \
-    defined(CPU_FAM_STM32U5)
+    defined(CPU_FAM_STM32U5) || defined(CPU_FAM_STM32H5)
 #define MAX_PAGES_PER_BANK      (128)
 #else /* CPU_FAM_STM32L4 */
 #define MAX_PAGES_PER_BANK      (256)
@@ -79,6 +90,15 @@ extern void _wait_for_pending_operations(void);
 static void _unlock_flash(void)
 {
     _unlock();
+
+#if defined(CPU_FAM_STM32H5)
+    /* Clear any stale programming/erase error flags in the non-secure status
+     * register; a pending error flag would otherwise block the next
+     * operation from starting. */
+    FLASH->NSCCR = FLASH_CCR_CLR_WRPERR | FLASH_CCR_CLR_PGSERR |
+                   FLASH_CCR_CLR_STRBERR | FLASH_CCR_CLR_INCERR |
+                   FLASH_CCR_CLR_EOP;
+#endif
 
 #if defined(CPU_FAM_STM32L0) || defined(CPU_FAM_STM32L1)
     DEBUG("[flashpage] unlocking the flash program memory\n");
@@ -119,7 +139,7 @@ static void _erase_page(void *page_addr)
       defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32F2) || \
       defined(CPU_FAM_STM32F4) || defined(CPU_FAM_STM32F7) || \
       defined(CPU_FAM_STM32U5) || defined(CPU_FAM_STM32WL) || \
-      defined(CPU_FAM_STM32C0)
+      defined(CPU_FAM_STM32C0) || defined(CPU_FAM_STM32H5)
     DEBUG("[flashpage] erase: setting the page address\n");
     uint8_t pn;
 #if (FLASHPAGE_NUMOF <= MAX_PAGES_PER_BANK) || defined(CPU_FAM_STM32WB) || \
@@ -133,7 +153,13 @@ static void _erase_page(void *page_addr)
     else {
         CNTRL_REG &= ~FLASH_CR_BKER;
     }
+#if defined(CPU_FAM_STM32H5)
+    /* SNB is the sector index within the selected bank (0..127); the bank is
+     * chosen via BKSEL above, so mask off the bank bit. */
+    pn = (uint8_t)(page & (MAX_PAGES_PER_BANK - 1));
+#else
     pn = (uint8_t)page;
+#endif
 #endif
     CNTRL_REG &= ~FLASH_CR_PNB;
 #if FLASHPAGE_DUAL_BANK
@@ -271,15 +297,25 @@ void flashpage_write(void *target_addr, const void *data, size_t len)
     defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32F2) || defined(CPU_FAM_STM32F4) || \
     defined(CPU_FAM_STM32F7) || defined(CPU_FAM_STM32U5) || \
-    defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0)
+    defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0) || \
+    defined(CPU_FAM_STM32H5)
     /* set PG bit and program page to flash */
     CNTRL_REG |= FLASH_CR_PG;
 #endif
     for (size_t i = 0; i < (len / sizeof(stm32_flashpage_block_t)); i++) {
+#if defined(CPU_FAM_STM32H5)
+        /* data_addr[i] is a 128-bit aggregate here, not a scalar */
+        DEBUG("[flashpage_raw] writing quadword to %p\n", (void *)dst);
+#else
         DEBUG("[flashpage_raw] writing %c to %p\n", (char)data_addr[i], dst);
+#endif
         *dst++ = data_addr[i];
 #if defined(CPU_FAM_STM32F7)
         __DMB();
+#elif defined(CPU_FAM_STM32H5)
+        /* ensure the full 128-bit quadword has reached the flash write buffer
+         * before polling the busy flag */
+        __DSB();
 #endif
         /* wait as long as device is busy */
         _wait_for_pending_operations();
@@ -292,7 +328,8 @@ void flashpage_write(void *target_addr, const void *data, size_t len)
     defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32F2) || defined(CPU_FAM_STM32F4) || \
     defined(CPU_FAM_STM32F7) || defined(CPU_FAM_STM32U5) || \
-    defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0)
+    defined(CPU_FAM_STM32WL) || defined(CPU_FAM_STM32C0) || \
+    defined(CPU_FAM_STM32H5)
     CNTRL_REG &= ~(FLASH_CR_PG);
 #endif
     DEBUG("[flashpage_raw] write: done writing data\n");

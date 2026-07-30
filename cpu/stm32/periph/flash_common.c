@@ -41,6 +41,15 @@
 #define KEY_REG                (FLASH->NSKEYR)
 #define FLASH_SR_EOP           (FLASH_NSSR_NSEOP)
 #endif
+#elif defined(CPU_FAM_STM32H5)
+/* STM32H5 (TrustZone disabled): use the non-secure flash registers. The
+ * control/status/key registers are NSCR/NSSR/NSKEYR while the bitfield
+ * macros keep the generic FLASH_CR_ and FLASH_SR_ names. */
+#define FLASH_KEY1             ((uint32_t)0x45670123)
+#define FLASH_KEY2             ((uint32_t)0xCDEF89AB)
+#define CNTRL_REG              (FLASH->NSCR)
+#define CNTRL_REG_LOCK         (FLASH_CR_LOCK)
+#define KEY_REG                (FLASH->NSKEYR)
 #else
 #if defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
@@ -64,6 +73,9 @@
 #define FLASH_SR_REG            (FLASH->NSSR)
 #elif defined(CPU_FAM_STM32U5)
 #define FLASH_SR_BSY            (FLASH_NSSR_BSY)
+#define FLASH_SR_REG            (FLASH->NSSR)
+#elif defined(CPU_FAM_STM32H5)
+/* FLASH_SR_BSY is provided natively by the CMSIS header (NSSR bit) */
 #define FLASH_SR_REG            (FLASH->NSSR)
 #else
 #define FLASH_SR_REG            (FLASH->SR)
