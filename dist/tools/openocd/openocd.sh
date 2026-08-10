@@ -273,7 +273,7 @@ do_flashr() {
     # This allows flashing normal binary files without env configuration
     if _is_binfile "${IMAGE_FILE}" "${IMAGE_TYPE}"; then
         # hardwritten to use the first bank
-        FLASH_ADDR=$(_flash_address 0)
+        FLASH_ADDR=${FLASH_ADDR:-$(_flash_address 0)}
         echo "Binfile detected, adding ROM base address: ${FLASH_ADDR}"
         IMAGE_TYPE=bin
         IMAGE_OFFSET=$(printf "0x%08x\n" "$((${IMAGE_OFFSET} + ${FLASH_ADDR}))")
@@ -322,7 +322,7 @@ do_flash() {
     # This allows flashing normal binary files without env configuration
     if _is_binfile "${IMAGE_FILE}" "${IMAGE_TYPE}"; then
         # hardwritten to use the first bank
-        FLASH_ADDR=$(_flash_address 0)
+        FLASH_ADDR=${FLASH_ADDR:-$(_flash_address 0)}
         echo "Binfile detected, adding ROM base address: ${FLASH_ADDR}"
         IMAGE_TYPE=bin
         IMAGE_OFFSET=$(printf "0x%08x\n" "$((${IMAGE_OFFSET} + ${FLASH_ADDR}))")
