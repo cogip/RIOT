@@ -1,0 +1,7 @@
+# Extra stdio backend: needs the dispatch layer to coexist with the console
+# backend, and lwIP IPv4/UDP to ship lines to the collector.
+USEMODULE += stdio
+USEMODULE += stdio_dispatch
+USEMODULE += lwip_ipv4
+USEMODULE += lwip_udp
+USEMODULE += ztimer_msec

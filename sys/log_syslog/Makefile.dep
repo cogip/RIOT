@@ -1,0 +1,3 @@
+# Network forwarding + console tee are done by the syslog stdio backend; this
+# module only adds per-severity tagging on top of it.
+USEMODULE += stdio_syslog
