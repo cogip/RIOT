@@ -80,6 +80,18 @@ extern void _lock(void);
 extern void _unlock(void);
 extern void _wait_for_pending_operations(void);
 
+/* On the STM32H5 a bank cannot be read while it (or its sibling in some
+ * configurations) is being erased, so the code that triggers the erase and
+ * polls for completion must run from RAM; otherwise a slot erasing its own
+ * header (riotboot rollback) stalls the core forever. Other families keep it
+ * in flash. Callers must also mask interrupts across the erase so no ISR is
+ * fetched from the stalled flash. */
+#if defined(CPU_FAM_STM32H5)
+#define FLASH_RAMFUNC __attribute__((section(".ramfunc"), noinline))
+#else
+#define FLASH_RAMFUNC
+#endif
+
 #if defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32L5) || \
     defined(CPU_FAM_STM32U5) || defined(CPU_FAM_STM32H5)
 #define MAX_PAGES_PER_BANK      (128)
@@ -112,7 +124,7 @@ static void _unlock_flash(void)
 #endif
 }
 
-static void _erase_page(void *page_addr)
+static FLASH_RAMFUNC void _erase_page(void *page_addr)
 {
 #if defined(CPU_FAM_STM32F0) || defined(CPU_FAM_STM32F1) || \
     defined(CPU_FAM_STM32F3)

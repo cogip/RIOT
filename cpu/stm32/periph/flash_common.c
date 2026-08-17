@@ -107,6 +107,17 @@ void _lock(void)
     }
 }
 
+/* On the STM32H5 the flash banks cannot be read while one of them is being
+ * erased, so the wait-for-busy loop must not be fetched from flash or the core
+ * would stall forever when a slot erases itself (see riotboot rollback). Place
+ * it in RAM. Other families keep it in flash (no cost). */
+#if defined(CPU_FAM_STM32H5)
+#define FLASH_RAMFUNC __attribute__((section(".ramfunc"), noinline))
+#else
+#define FLASH_RAMFUNC
+#endif
+
+FLASH_RAMFUNC
 void _wait_for_pending_operations(void)
 {
     if (FLASH_SR_REG & FLASH_SR_BSY) {
